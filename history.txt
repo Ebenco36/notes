@@ -1,0 +1,28 @@
+conda create --name note_env python=3.9 Django
+
+conda activate note_env
+C:\ProgramData\Anaconda3\Scripts\activate note_env
+
+conda list --name note_env --export > environment.yml
+
+django-admin startproject notes .
+
+pip install behave selenium
+
+
+run BDD
+
+behave
+
+{
+	"success": true,
+	"message": "User profile created successfully",
+	"data": {
+		"first_name": "ola",
+		"last_name": "oal",
+		"username": "wxww",
+		"email": "sssq@sds.ss",
+		"password": "sssq@sds.ss",
+		"confirm_password": "sssq@sds.ss"
+	}
+}

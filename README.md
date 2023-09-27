@@ -38,3 +38,41 @@ Try to produce something that is at least minimally functional. Part of the exer
 |--|--|--|
 | Python & Django | Yes | [Repository →](https://github.com/Thermondo/backend-coding-challenge-django) 
 | Kotlin & Ktor | Yes | [Repository →](https://github.com/Thermondo/backend-coding-challenge-ktor)
+
+
+## FOLDER STRUCTURE
+
+APP LIST-> 
+    Account : This app manages user authentication, registration and logout.
+    User    : This manages users. Our User model resides here and extends AbstractBaseUser, PermissionsMixin. With this model, we are also implementing our object manager to
+    create new user.
+    Notes   : This app encapsulates user notes and tags
+
+Repository Design Pattern (RDP):
+
+    We are also implementing RDP with our apps. This helps us to keep away major logic from
+    our views/controllers. This also strengths uniformity with in the system.
+
+
+Response Class:
+
+    A custom class is also created to maintain a standard with in our application.
+    This class exist with Utils package.
+
+
+Test cases: 
+
+    We are also implementing unit test for each of the apps to ensuch integrity
+
+
+BDD (Behavior-driven development)
+
+    This give a high level abstraction of how the system should work. Very high...
+
+
+Frontend: 
+
+    Implement a frontend to consume endpoints from our Django application. The frontend is
+    built on Vuejs. Just a simple implementation to consume endpoints.
+
+    The frontend can be moved out of the Django application to separate concern without breaking anything.

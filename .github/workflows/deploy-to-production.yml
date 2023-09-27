@@ -1,0 +1,59 @@
+name: TestNote By Ebenezer
+
+on:
+  push:
+    branches:
+      - main  # Replace with your main branch name
+  pull_request:
+    branches:
+      - main  # Replace with your main branch name
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x  # Replace with your Python version
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt  # Adjust the path as needed
+
+    - name: Run tests
+      run: |
+        python manage.py test
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x  # Replace with your Python version
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt  # Adjust the path as needed
+
+    - name: Deploy to production
+      env:
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}  # Replace with your actual SECRET_KEY
+        DEBUG: "False"  # Set DEBUG to "False" for production
+      run: |
+        python manage.py collectstatic --noinput
+        python manage.py migrate
+        # Add any other deployment steps here (e.g., reloading web server, notifying services)
+
