@@ -33,31 +33,31 @@ export default {
     // Set up Axios interceptor
     axios.interceptors.request.use(
       (config) => {
-        this.loading = true
+        this.loading = true;
         return config;
       },
       (error) => {
         // Hide the loader on error (optional)
-        this.loading = false
+        this.loading = false;
         return Promise.reject(error);
-      },
+      }
     );
 
     axios.interceptors.response.use(
       (response) => {
         // Hide the loader when the response is received
-        this.loading = false
+        this.loading = false;
         return response;
       },
       (error) => {
         // Hide the loader on error (optional)
-        this.loading = false
+        this.loading = false;
         return Promise.reject(error);
-      },
+      }
     );
   },
 };
 </script>
 <style lang="scss">
-  @import'~bootstrap/dist/css/bootstrap.css'
+@import "~bootstrap/dist/css/bootstrap.css";
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <div id="notfound">
-        <h5>Not found</h5>
-    </div>
+  <div id="notfound">
+    <h5>Not found</h5>
+  </div>
 </template>
