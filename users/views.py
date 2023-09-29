@@ -95,6 +95,7 @@ class UserProfileUpdateView(generics.UpdateAPIView):
 class UserDeleteView(generics.DestroyAPIView):
     serializer_class = CreateUserSerializer
     permission_classes = [IsAuthenticated]
+    queryset = (UserRepository()).get_all_users()
 
     def get_object(self):
         user_repo = UserRepository()

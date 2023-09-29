@@ -89,3 +89,7 @@ run test (For each)
     OR 
 
     python manage.py test (for all)
+
+API Docs
+
+    http://{host}/docs/
