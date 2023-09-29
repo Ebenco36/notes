@@ -48,6 +48,17 @@ APP LIST->
     create new user.
     Notes   : This app encapsulates user notes and tags
 
+
+BDD (Behavior-driven development)
+
+    This give a high level abstraction of how the system should work. Very high...
+
+
+Test cases: 
+
+    We are also implementing unit test for each of the apps to ensuch integrity
+
+
 Repository Design Pattern (RDP):
 
     We are also implementing RDP with our apps. This helps us to keep away major logic from
@@ -60,16 +71,6 @@ Response Class:
     This class exist with Utils package.
 
 
-Test cases: 
-
-    We are also implementing unit test for each of the apps to ensuch integrity
-
-
-BDD (Behavior-driven development)
-
-    This give a high level abstraction of how the system should work. Very high...
-
-
 Frontend: 
 
     Implement a frontend to consume endpoints from our Django application. The frontend is
@@ -79,8 +80,12 @@ Frontend:
 
 formatter: npx prettier --write "src/**/*.vue"
 
-run test 
+run test (For each)
 
     python manage.py test account.tests
     python manage.py test users.tests
     python manage.py test notes.tests
+
+    OR 
+
+    python manage.py test (for all)

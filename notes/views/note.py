@@ -95,4 +95,7 @@ class NoteListCreateViewUP(generics.RetrieveUpdateDestroyAPIView):
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.delete()
-        return ApiResponse.success(message = "Deleted note successfully", status=status.HTTP_204_NO_CONTENT)
+        return ApiResponse.success(
+            message = "Deleted note successfully", 
+            status=status.HTTP_204_NO_CONTENT
+        )

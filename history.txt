@@ -28,3 +28,5 @@ behave
 		"confirm_password": "sssq@sds.ss"
 	}
 }
+
+pip list --format=freeze > requirements.txt
