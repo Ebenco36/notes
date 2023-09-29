@@ -16,9 +16,9 @@ from users.serializers import CreateUserSerializer, UserSerializer
 
 """
     We are open to several options to generate user token
-    *** Django REST Framework Token Authentication
+    Django REST Framework Token Authentication
     Django's Built-in Token Authentication
-    JWT (JSON Web Tokens) TokenObtainPairView vis simplejwt
+    ***JWT (JSON Web Tokens) TokenObtainPairView vis simplejwt
     and others
 """
 class UserLoginView(TokenObtainPairView):
@@ -84,11 +84,9 @@ class UserRegistrationView(generics.CreateAPIView):
         else:
             return ApiResponse.error(
                 data=serializer.errors, 
-                status=status.HTTP_401_UNAUTHORIZED
+                status=status.HTTP_400_BAD_REQUEST
             )
                 
-            
-
 class UserLogoutView(APIView):
     permission_classes = [IsAuthenticated]
 

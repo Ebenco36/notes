@@ -2,28 +2,26 @@
 from django.db.models import Q
 from rest_framework import generics
 from utils.response import ApiResponse 
+from notes.serializers import NoteSerializer
 from rest_framework import generics, status
 from notes.permissions import IsOwnerOrReadOnly
-from notes.permissions import IsOwnerOrReadOnly
 from users.renderers import ResponseJSONRenderer
-from notes.repositories.note_repository import NoteRepository
-from notes.serializers import NoteSerializer, CreateNoteSerializer
-
 from rest_framework.permissions import IsAuthenticated
+from notes.repositories.note_repository import NoteRepository
 
 # Import ends
 
-
 class NoteListCreateView(generics.ListCreateAPIView):
-    serializer_class = NoteSerializer
+    queryset = NoteRepository.list_all()
     renderer_classes = [ResponseJSONRenderer]
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    serializer_class = NoteSerializer
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]  # Apply custom permission for object-level permissions
 
-    def get_serializer_class(self):
-        if self.request.method == 'POST':
-            return CreateNoteSerializer
-        return NoteSerializer
-    
+    def perform_create(self, serializer):
+        # Set the owner of the post to the currently authenticated user
+        serializer.save(user=self.request.user)
+
+
     def get_queryset(self):
         query = self.request.query_params.get('q', '').strip() # remove extras
         tag = self.request.query_params.get('tag', "") # remove extras
@@ -45,65 +43,56 @@ class NoteListCreateView(generics.ListCreateAPIView):
 
         return queryset
     
-    
-    def perform_create(self, serializer):
-        title = serializer.validated_data['title']
-        body = serializer.validated_data['body']
-        tags = serializer.validated_data.get('tags', [])
-
-        # create record via our repository
-        NoteRepository.create(
-            user=self.request.user, 
-            title = title, 
-            body = body,
-            tags = tags,
-        )
-        # generate response
+    # The get method handles GET requests to list objects
+    def get(self, request, *args, **kwargs):
+        # Retrieve the queryset based on the view's queryset attribute
+        queryset = self.get_queryset()
+        
+        # Serialize the queryset data
+        serializer = self.get_serializer(queryset, many=True)
+        
+        # Return the serialized data as the response
         return ApiResponse.success(
+            message = "fetch notes successfully", 
             data=serializer.data, 
-            message="Note has been successfully created", 
-            status=status.HTTP_201_CREATED
+            status=status.HTTP_200_OK
         )
+    
 
-
-"""
-    Handle GET, UPDATE, DELETE Requests
-"""
-class NoteRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = NoteSerializer
+class NoteListCreateViewUP(generics.RetrieveUpdateDestroyAPIView):
     renderer_classes = [ResponseJSONRenderer]
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
-
-    def get_object(self):
-        return NoteRepository.get_note_by_id(self.kwargs['pk'])
+    queryset = NoteRepository.list_all()
+    serializer_class = NoteSerializer
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]  # Apply custom permission for object-level permissions
+    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return ApiResponse.success(
+            message = "Retrieve notes successfully", 
+            data=serializer.data, 
+            status=status.HTTP_200_OK
+        )
 
     def update(self, request, *args, **kwargs):
-        note = self.get_object()
-        serializer = self.get_serializer(note, data=request.data, partial=True)
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
         if serializer.is_valid():
-            title = serializer.validated_data['title']
-            body = serializer.validated_data['body']
-            tags = serializer.validated_data.get('tags', [])
-            NoteRepository.update(note=note, title=title, body=body, tags=tags)
+            serializer.save()
             return ApiResponse.success(
+                message = "Updated note successfully", 
                 data=serializer.data, 
-                message="Note has been successfully updated", 
-                status=status.HTTP_200_OK
+                status=status.HTTP_201_CREATED
             )
         else:
             return ApiResponse.error(
-                data={"message": "Error has occured"}, 
-                message="Could not update note", 
+                message = "Update failed", 
+                data=serializer.errors, 
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-
-
-    def delete(self, request, *args, **kwargs):
-        note = self.get_object()
-        NoteRepository.delete(note)
-        return ApiResponse.success(
-            data={}, 
-            message="Note has been successfully deleted", 
-            status=status.HTTP_204_NO_CONTENT
-        )
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return ApiResponse.success(message = "Deleted note successfully", status=status.HTTP_204_NO_CONTENT)

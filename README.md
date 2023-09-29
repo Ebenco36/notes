@@ -78,3 +78,9 @@ Frontend:
     The frontend can be moved out of the Django application to separate concern without breaking anything.
 
 formatter: npx prettier --write "src/**/*.vue"
+
+run test 
+
+    python manage.py test account.tests
+    python manage.py test users.tests
+    python manage.py test notes.tests

@@ -4,25 +4,28 @@ from notes.models import Note # Import the Note model
 from taggit.models import Tag
 from taggit.serializers import (TagListSerializerField, TaggitSerializer)
 
+
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
 
+    def to_internal_value(self, data):
+        tag, _ = Tag.objects.get_or_create(name=data)
+        return tag
 
 class NoteSerializer(TaggitSerializer, serializers.ModelSerializer):
-    tags = serializers.SlugRelatedField(
-        many=True,
-        queryset=Note.tags.all(),
-        slug_field='name'
-    )
+    tags = TagListSerializerField()
+
     class Meta:
         model = Note
-        fields = ['id', 'user', 'title', 'body', 'tags', 'created', 'updated']
+        fields = ['id', 'title', 'body', 'tags']
 
+    def create(self, validated_data):
+        tags_data = validated_data.pop('tags', [])
+        note = Note.objects.create(**validated_data)
 
-class CreateNoteSerializer(TaggitSerializer, serializers.ModelSerializer):
-    tags = serializers.ListField(child=serializers.CharField(max_length=255), write_only=True)
-    class Meta:
-        model = Note
-        fields = ['title', 'body', 'tags']
+        for tag_data in tags_data:
+            note.tags.add(tag_data)
+
+        return note

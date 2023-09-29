@@ -1,58 +1,113 @@
 from users.models import User
-from django.urls import reverse
-from rest_framework import status
+from notes.models import Note
+from taggit.models import Tag
 from rest_framework.test import APITestCase
-from .models import Note
 
-class NoteAPITestCase(APITestCase):
+
+URL = "http://127.0.0.1:8000/api/note"
+
+class NoteCreationTestCase(APITestCase):
     def setUp(self):
-        # Create a test user
-        self.user = User.objects.create_user(
-            username='testuser',
-            password='testpassword'
+        # Create test user accounts
+        self.user1 = User.objects.create_user(
+            first_name = 'usertest1', 
+            last_name = 'usertest1', 
+            email = 'testuser1@oal.com',
+            username='user1', 
+            password='password1'
+        )
+        self.user2 = User.objects.create_user(
+            first_name = 'usertest2', 
+            last_name = 'usertest2', 
+            email = 'testuser2@oal.com',
+            username='user2', 
+            password='password2'
         )
 
-        # Create a sample note for the test user
-        self.note = Note.objects.create(
-            owner=self.user,
-            title='Test Note',
-            content='This is a test note'
-        )
+        # Create test tags
+        self.tag1 = Tag.objects.create(name='tag1')
+        self.tag2 = Tag.objects.create(name='tag2')
 
-        # Obtain a JWT token for authentication
-        response = self.client.post(
-            reverse('token_obtain_pair'),
-            {'username': 'testuser', 'password': 'testpassword'},
-            format='json'
-        )
-        self.token = response.data['access']
+    def test_create_note_with_tags(self):
+        # Log in as user1
+        self.client.login(email='testuser1@oal.com', password='password1')
 
-        # Set the Authorization header for future requests
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.token}')
+        # Create a note with tags
+        response = self.client.post(URL + '/lists-create/', {
+            'title': 'Test Note',
+            'body': 'This is a test note.',
+            'tags': [self.tag1.id, self.tag2.id],  # Use tag IDs
+        })
 
-    def test_create_note(self):
-        url = reverse('note-list-create')
-        data = {'title': 'New Note', 'content': 'This is a new note'}
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Note.objects.count(), 2)  # Check that the note was created
 
-    def test_retrieve_note(self):
-        url = reverse('note-retrieve-update-destroy', args=[self.note.id])
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['title'], 'Test Note')
+        self.assertEqual(response.status_code, 200) 
+        self.assertTrue(Note.objects.filter(title='Test Note').exists())
 
-    def test_update_note(self):
-        url = reverse('note-retrieve-update-destroy', args=[self.note.id])
-        data = {'title': 'Updated Note', 'content': 'This is an updated note'}
-        response = self.client.put(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.note.refresh_from_db()  # Refresh the object from the database
-        self.assertEqual(self.note.title, 'Updated Note')
+    def test_edit_own_note(self):
+        # Create a note owned by user1
+        note = Note.objects.create(title='User1 Note', body='This note belongs to user1', user=self.user1)
+        note.tags.set([self.tag1])
 
-    def test_delete_note(self):
-        url = reverse('note-retrieve-update-destroy', args=[self.note.id])
-        response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(Note.objects.count(), 0)  # Check that the note was deleted
+        # Log in as user1
+        self.client.login(username='user1', password='password1')
+
+        # Edit user1's own note
+        response = self.client.post(URL + f'/note/{note.id}/', {
+            'title': 'Updated Note',
+            'body': 'This is an update by user1.',
+            'tags': [self.tag2.id],  # Use a different tag
+        })
+
+        # Check if the edit was successful
+        self.assertEqual(response.status_code, 200) 
+        note.refresh_from_db()
+        self.assertEqual(note.title, 'Updated Note')
+        self.assertEqual(note.body, 'This is an update by user1.')
+        self.assertTrue(self.tag2 in note.tags.all())
+
+    def test_edit_other_users_note(self):
+        # Create a note owned by user1
+        note = Note.objects.create(title='User1 Note', body='This note belongs to user1', user=self.user1)
+        note.tags.set([self.tag1])
+
+        # Log in as user2
+        self.client.login(email='testuser2@oal.com', password='password2')
+
+        # Attempt to edit user1's note
+        response = self.client.post(URL + f'/edit-note/{note.id}/', {
+            'title': 'Updated Note',
+            'body': 'This is an update by user2.',
+            'tags': [self.tag2.id],  # Use a different tag
+        })
+
+        # Check if the edit request is denied due to object-level permissions
+        self.assertEqual(response.status_code, 403) 
+
+    def test_delete_own_note(self):
+        # Create a note owned by user1
+        note = Note.objects.create(title='User1 Note', body='This note belongs to user1', user=self.user1)
+        note.tags.set([self.tag1])
+
+        # Log in as user1
+        self.client.login(email='testuser1@oal.com', password='password1')
+
+        # Delete user1's own note
+        response = self.client.post(URL + f'/delete-note/{note.id}/')
+
+        # Check if the note was deleted successfully
+        self.assertEqual(response.status_code, 200) 
+        self.assertFalse(Note.objects.filter(title='User1 Note').exists())
+
+    def test_delete_other_users_note(self):
+        # Create a note owned by user1
+        note = Note.objects.create(title='User1 Note', body='This note belongs to user1', user=self.user1)
+        note.tags.set([self.tag1])
+
+        # Log in as user2
+        self.client.login(email='testuser2@oal.com', password='password2')
+
+        # Attempt to delete user1's note
+        response = self.client.post(URL + f'/delete-note/{note.id}/')
+
+        # Check if the delete request is denied due to object-level permissions
+        self.assertEqual(response.status_code, 403) 
