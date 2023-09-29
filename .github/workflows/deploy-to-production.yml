@@ -3,60 +3,31 @@ name: TestNote By Ebenezer
 on:
   push:
     branches:
-      - main  # Replace with your main branch name
-  pull_request:
-    branches:
-      - main  # Replace with your main branch name
+      - main  # Adjust this to match your main branch name
 
 jobs:
   build:
+    name: Run Django Tests
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: [3.6, 3.7, 3.8]
-
-        steps:
-          - uses: actions/checkout@v2
-          - name: Set up Python ${{ matrix.python-version }}
-            uses: actions/setup-python@v1
-            with:
-              python-version: ${{ matrix.python-version }}
-          - name: Install Dependencies
-            run: |
-              python -m pip install --upgrade pip
-              pip install -r ./requirements.txt
-          - name: Run tests
-            run: |
-              python manage.py test
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: [3.6, 3.7, 3.8]
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v1
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r ./requirements.txt
-      - name: Run tests
-        run: |
-          python manage.py test
-      - name: Deploy to production
-        env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}  # Replace with your actual SECRET_KEY
-          DEBUG: "False"  # Set DEBUG to "False" for production
-        run: |
-          python manage.py collectstatic --noinput
-          python manage.py migrate
-          
+    - name: Checkout code
+      uses: actions/checkout@v2
 
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9  # Adjust to your Python version
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt  # Adjust to your requirements file location
+
+    - name: Run tests
+      run: python manage.py test  # Adjust to your Django management command
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-results
+        path: '**/test-results.xml'  # Adjust to your test results file location
