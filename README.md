@@ -52,9 +52,10 @@ APP LIST->
 BDD (Behavior-driven development)
 
     This give a high level abstraction of how the system should work. Very high...
+    We have been able to define the scope of this project using BDD approach
 
 
-Test cases: 
+Test cases (TDD): 
 
     We are also implementing unit test for each of the apps to ensuch integrity
 
@@ -75,6 +76,7 @@ Frontend:
 
     Implement a frontend to consume endpoints from our Django application. The frontend is
     built on Vuejs. Just a simple implementation to consume endpoints.
+    This is just for me to test and see implementation. Could be helpful visually
 
     The frontend can be moved out of the Django application to separate concern without breaking anything.
 
@@ -93,3 +95,9 @@ run test (For each)
 API Docs
 
     http://{host}/docs/
+
+
+Object Level permission
+
+    We are using the object level permission to manage access to object (notes)
+    
