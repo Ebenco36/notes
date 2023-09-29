@@ -2,8 +2,8 @@ from notes.models import Note
 
 class NoteRepository:
     @staticmethod
-    def create(user, title, content, tags=None):
-        note = Note.objects.create(user=user, title=title, content=content)
+    def create(user, title, body, tags=None):
+        note = Note.objects.create(user=user, title=title, body=body)
         """
             We are adding records on relationship created within our 
             model for note. 
@@ -17,19 +17,20 @@ class NoteRepository:
     @staticmethod
     def get_note_by_id(note_id):
         try:
-            return Note.objects.get(id=note_id)
+            return Note.objects.prefetch_related('tags').get(id=note_id)
         except Note.DoesNotExist:
             return None
         
     
     @staticmethod
     def filter_note(queryFilter):
-        return Note.objects.filter(queryFilter)
+        return Note.objects.prefetch_related('tags').filter(queryFilter)
 
     @staticmethod
-    def update(note, title, content, tags = None):
+    def update(note, title, body, tags = None):
+        print(tags)
         note.title = title
-        note.body = content
+        note.body = body
         if tags:
             note.tags.set(tags)
         note.save()
@@ -41,8 +42,9 @@ class NoteRepository:
 
     @staticmethod
     def list_by_owner(user):
-        return Note.objects.filter(user=user)
+        return Note.objects.prefetch_related('tags').filter(user=user)
 
     @staticmethod
     def list_all():
-        return Note.objects.all()
+        records = Note.objects.prefetch_related('tags').all()
+        return records

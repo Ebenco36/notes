@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework_swagger', # Swagger
     'corsheaders',
-    'drf_yasg' # Yet Another Swagger generator
+    'drf_yasg', # Yet Another Swagger generator
+    'taggit',
 ]
 
 MIDDLEWARE = [
@@ -158,46 +159,21 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
     )
 }
 
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
-    'SLIDING_TOKEN_REFRESH_LIFETIME_ALGORITHM': 'HS256',
-    'SLIDING_TOKEN_LIFETIME_ALGORITHM': 'HS256',
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=3200000),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=3),
+    'SIGNING_KEY': SECRET_KEY,
     'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
-    "UPDATE_LAST_LOGIN": False,
-    "ALGORITHM": "HS256",
-    "SIGNING_KEY": SECRET_KEY,
-    "VERIFYING_KEY": None,
-    "AUDIENCE": None,
-    "ISSUER": None,
-    "JWK_URL": None,
-    "LEEWAY": 0,
-    "AUTH_HEADER_TYPES": ("Bearer",),
-    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "USER_ID_FIELD": "id",
-    "USER_ID_CLAIM": "user_id",
-    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
-    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
-    "TOKEN_TYPE_CLAIM": "token_type",
-    "JTI_CLAIM": "jti",
-    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
-    "SLIDING_TOKEN_LIFETIME": datetime.timedelta(minutes=5),
-    "SLIDING_TOKEN_REFRESH_LIFETIME": datetime.timedelta(days=1),
+    'BLACKLIST_AFTER_ROTATION': True
 }
 
 CORS_ALLOWED_ORIGINS = [
    "http://localhost:8080",
 ]
 
-# Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.example.com'  # Set your SMTP server
-EMAIL_PORT = 587  # Set your SMTP port
-EMAIL_USE_TLS = True  # Use TLS for secure email transmission
-EMAIL_HOST_USER = 'your_email@example.com'  # Your SMTP username
-EMAIL_HOST_PASSWORD = 'your_email_password'  # Your SMTP password
+TAGGIT_CASE_INSENSITIVE = True

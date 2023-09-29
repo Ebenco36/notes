@@ -76,3 +76,5 @@ Frontend:
     built on Vuejs. Just a simple implementation to consume endpoints.
 
     The frontend can be moved out of the Django application to separate concern without breaking anything.
+
+formatter: npx prettier --write "src/**/*.vue"

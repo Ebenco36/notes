@@ -13,6 +13,7 @@ class UserListView(generics.ListAPIView):
         return user_repo.get_all_users()
     
 
+
 class UserCreateView(generics.CreateAPIView):
     serializer_class = CreateUserSerializer
     permission_classes = [AllowAny]
@@ -26,6 +27,7 @@ class UserCreateView(generics.CreateAPIView):
             return Response(serializer.validated_data, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserProfileView(generics.RetrieveAPIView):
     serializer_class = CreateUserSerializer
@@ -54,6 +56,7 @@ class UserProfileUpdateView(generics.UpdateAPIView):
             return Response(serializer.validated_data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserDeleteView(generics.DestroyAPIView):
     serializer_class = CreateUserSerializer

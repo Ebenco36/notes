@@ -3,6 +3,8 @@ conda create --name note_env python=3.9 Django
 conda activate note_env
 C:\ProgramData\Anaconda3\Scripts\activate note_env
 
+dbshell 
+
 conda list --name note_env --export > environment.yml
 
 django-admin startproject notes .

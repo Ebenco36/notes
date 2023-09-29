@@ -2,13 +2,11 @@
 from utils.response import ApiResponse 
 from rest_framework.views import APIView
 from rest_framework import generics, status
+from account.serializers import LoginSerializer
 # from rest_framework.authtoken.models import Token
 from users.serializers import CreateUserSerializer
 from users.repositories.user import UserRepository
-from account.serializers import LoginSerializer
-from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.authentication import TokenAuthentication
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from users.serializers import CreateUserSerializer, UserSerializer
@@ -49,7 +47,6 @@ class UserLoginView(TokenObtainPairView):
             )
 
 class UserProfileView(APIView):
-    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
