@@ -30,3 +30,5 @@ behave
 }
 
 pip list --format=freeze > requirements.txt
+
+git rm --cached */__pycache__/*
